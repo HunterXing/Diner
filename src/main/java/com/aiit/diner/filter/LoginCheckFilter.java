@@ -57,15 +57,17 @@ public class LoginCheckFilter implements Filter {
         // 从redis中获取 TOKEN${id}键的值，和token对比
         Object redisToken = RedisUtils.get("TOKEN"+id);
         log.info("redisToken ---> {}", redisToken);
-        log.info("redisToken是否和token相等 ---> {}", redisToken.equals(token)) ;
+
         // 如果RedisToken和token一致，则放行
-        if(redisToken.equals(token)) {
+        if(redisToken != null && redisToken.equals(token)) {
             filterChain.doFilter(request, response);
             return;
         }
         // 5、如果未登录，则返回未登录结果
-        response.getWriter().write(JSON.toJSONString(R.error("未登录")));
-        log.info("用户的未登录");
+        response.setCharacterEncoding("utf-8");
+        response.getWriter()
+                .write(JSON.toJSONString(R.error("暂未登录", 401)));
+        log.info("用户未登录");
         return;
     }
 

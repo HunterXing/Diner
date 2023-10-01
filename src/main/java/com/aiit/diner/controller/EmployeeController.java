@@ -5,6 +5,7 @@ import com.aiit.diner.entity.Employee;
 import com.aiit.diner.service.EmployeeService;
 import com.aiit.diner.utils.JwtUtils;
 import com.aiit.diner.utils.RedisUtils;
+import com.aiit.diner.vo.EmployeeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +30,8 @@ public class EmployeeController {
      */
     @ApiOperation("员工登录接口")
     @PostMapping("/login")
-    public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee){
-        return employeeService.login(request,  employee);
+    public R<EmployeeVo> login(HttpServletRequest request, @RequestBody Employee employee){
+        return employeeService.login(request, employee);
     }
 
     /**

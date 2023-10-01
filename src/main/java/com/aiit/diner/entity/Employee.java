@@ -35,7 +35,7 @@ public class Employee implements Serializable {
     private String sex;
 
     @ApiModelProperty(value = "身份证号码")
-    private String idNumber;//身份证号码
+    private String idNumber;
 
     @ApiModelProperty(value = "员工状态 0：禁 用 1：正常")
     private Integer status;
@@ -54,5 +54,4 @@ public class Employee implements Serializable {
     @ApiModelProperty(value = "更新人")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateUser;
-
 }
