@@ -1,19 +1,30 @@
 package com.aiit.diner.service.impl;
 
 import com.aiit.diner.common.R;
+import com.aiit.diner.utils.JwtUtils;
+import com.aiit.diner.utils.RedisUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.aiit.diner.entity.Employee;
 import com.aiit.diner.mapper.EmployeeMapper;
 import com.aiit.diner.service.EmployeeService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.Date;
 
+
+/**
+ * @author xingheng
+ */
+@Slf4j
 @Service
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper,Employee> implements EmployeeService{
+    @Value("${JWT.expireTime}")
+    private int expireTime;
     @Override
     public R<Employee> login(HttpServletRequest request, Employee employee) {
         //1、将页面提交的密码password进行md5加密处理
@@ -37,7 +48,38 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper,Employee> im
         if(emp.getStatus() == 0){
             return  R.error("用户已禁用");
         }
-        request.getSession().setAttribute("employee", emp.getId());
+
+        // 将token存入redis
+        // 1、先看是否有这个redis键，没有的话存入
+        // 2、有的话就不添加
+        String key = "TOKEN" +  String.valueOf(emp.getId());
+        if (!RedisUtils.hasKey(key)){
+            // 生成token
+            String token = JwtUtils.generateToken(emp.getId());
+            log.info( "登录成功，token: {}" , token);
+            RedisUtils.set(key, token, 60 * expireTime);
+        }
         return R.success(emp);
+    }
+
+    @Override
+    public R<Boolean> addEmployee(Employee employee) {
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Employee::getUsername, employee.getUsername());
+        Employee emp = getOne(queryWrapper);
+        if(emp != null){
+            return R.error("用户名已存在");
+        }
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+        employee.setCreateUser(1L);
+        employee.setUpdateUser(1L);
+        // 设置时间 LocalDateTime
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        if (save(employee)) {
+            return R.success(true);
+        }
+        return R.error("新增失败");
     }
 }

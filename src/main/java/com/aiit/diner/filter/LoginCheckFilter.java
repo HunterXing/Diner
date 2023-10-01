@@ -1,6 +1,8 @@
 package com.aiit.diner.filter;
 
 import com.aiit.diner.common.R;
+import com.aiit.diner.utils.JwtUtils;
+import com.aiit.diner.utils.RedisUtils;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.AntPathMatcher;
@@ -11,9 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/*
+
+
+/**
  * 登录检查过滤器
  * 拦截所有接口
+ * @author xingheng
  */
 @WebFilter(filterName = "LoginCheckFilter", urlPatterns = "/*")
 @Slf4j
@@ -31,8 +36,8 @@ public class LoginCheckFilter implements Filter {
         String requestURI = request.getRequestURI();
         // 不需要拦截的接口，白名单
         String[] whiteUrls = new String[]{
-            "/employee/login",
-            "/employee/logout",
+            "/diner/employee/login",
+            "/diner/employee/logout",
         };
 
         // 2、判断本次请求是否需要处理
@@ -43,16 +48,24 @@ public class LoginCheckFilter implements Filter {
             return;
         }
         // 4、判断登录状态，如果已登陆，则直接放行
-        // TODO: 后面改成JWT
-        if(request.getSession().getAttribute("employee") != null) {
-            log.info("用户的id为 {}", request.getSession().getAttribute("employee").toString()) ;
+        // 获取请求头中的token
+        String token = request.getHeader("token");
+        log.info("header中的token ---> {}", token);
+        // 通过token获取用户id
+        Object id = JwtUtils.getUserIdByToken(token);
+        log.info("id ---> {}", id) ;
+        // 从redis中获取 TOKEN${id}键的值，和token对比
+        Object redisToken = RedisUtils.get("TOKEN"+id);
+        log.info("redisToken ---> {}", redisToken);
+        log.info("redisToken是否和token相等 ---> {}", redisToken.equals(token)) ;
+        // 如果RedisToken和token一致，则放行
+        if(redisToken.equals(token)) {
             filterChain.doFilter(request, response);
             return;
         }
-
         // 5、如果未登录，则返回未登录结果
         response.getWriter().write(JSON.toJSONString(R.error("未登录")));
-        log.info("用户的未登录") ;
+        log.info("用户的未登录");
         return;
     }
 

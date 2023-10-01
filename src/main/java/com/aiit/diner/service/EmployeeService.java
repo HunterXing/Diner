@@ -6,7 +6,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @author xingheng
+ */
 public interface EmployeeService extends IService<Employee> {
 
     R<Employee> login(HttpServletRequest request, Employee employee);
+
+    R<Boolean> addEmployee(Employee employee);
 }

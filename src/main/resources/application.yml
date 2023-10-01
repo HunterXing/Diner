@@ -2,6 +2,7 @@ server:
   port: 8092
   servlet:
     context-path: /diner
+
 spring:
   application:
     #应用的名称，可选
@@ -13,6 +14,7 @@ spring:
       url: jdbc:mysql://localhost:3306/db_diner?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password:
+
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
@@ -26,3 +28,12 @@ springfox:
   documentation:
     swagger-ui:
       enabled: true
+
+#自定义token配置参数
+JWT:
+  #JWT加盐处理
+  salt: xing.heng.random
+  #JWT到期时间 分钟
+  expireTime: 10
+  # 配置白名单（不需要认证）
+  antMatchers: /login/**,/register/**,/static/**
