@@ -44,7 +44,7 @@ public class EmployeeController {
         // 获取当前的token
         String token = request.getHeader("token");
         // 根据token获取用户信息
-        Object id = JwtUtils.getUserIdByToken(token);
+        Long id = JwtUtils.getUserIdByToken(token);
         String key =  "TOKEN" + id;
         RedisUtils.delete(key);
         return R.success("退出成功");
@@ -55,7 +55,10 @@ public class EmployeeController {
      * @param employee
      */
     @PostMapping
-    public R<Boolean> save(@RequestBody Employee employee) {
+    public R<Boolean> save(HttpServletRequest request, @RequestBody Employee employee) {
+        Long currentUserId = (Long) request.getAttribute("currentUserId");
+        employee.setCreateUser(currentUserId);
+        employee.setUpdateUser(currentUserId);
         return employeeService.addEmployee(employee);
     }
 

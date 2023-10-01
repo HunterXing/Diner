@@ -45,7 +45,7 @@ public class RedisUtils {
      * 获取值
      * @param key
      */
-    public static Object get(String key) {
+    public static String get(String key) {
         return redisUtils.redisTemplate.opsForValue().get(key);
     }
 

@@ -1,6 +1,7 @@
 package com.aiit.diner.utils;
 
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
@@ -52,9 +53,9 @@ public class JwtUtils {
      * 通过token获取用户id
      * @return Long userId
      */
-    public static Object getUserIdByToken(String token) {
+    public static Long getUserIdByToken(String token) {
         final JWT jwt = JWTUtil.parseToken(token);
         log.info("jwt, {}",  jwt);
-        return jwt.getPayload("id");
+        return  Convert.toLong(jwt.getPayload("id"));
     }
 }

@@ -72,14 +72,13 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper,Employee> im
             return R.error("用户名已存在");
         }
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        employee.setCreateUser(1L);
-        employee.setUpdateUser(1L);
+
         // 设置时间 LocalDateTime
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
 
         if (save(employee)) {
-            return R.success(true);
+            return R.success(true, "添加用户成功");
         }
         return R.error("新增失败");
     }

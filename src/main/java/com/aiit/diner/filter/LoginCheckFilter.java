@@ -52,12 +52,12 @@ public class LoginCheckFilter implements Filter {
         String token = request.getHeader("token");
         log.info("header中的token ---> {}", token);
         // 通过token获取用户id
-        Object id = JwtUtils.getUserIdByToken(token);
+        Long id = JwtUtils.getUserIdByToken(token);
         log.info("id ---> {}", id) ;
         // 从redis中获取 TOKEN${id}键的值，和token对比
-        Object redisToken = RedisUtils.get("TOKEN"+id);
+        String redisToken = RedisUtils.get("TOKEN"+id);
         log.info("redisToken ---> {}", redisToken);
-
+        request.setAttribute("currentUserId", id);
         // 如果RedisToken和token一致，则放行
         if(redisToken != null && redisToken.equals(token)) {
             filterChain.doFilter(request, response);
